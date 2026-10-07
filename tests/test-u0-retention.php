@@ -20,6 +20,13 @@ function days_ago( int $n ): string {
 	return Time::toDb( Time::now()->modify( '-' . $n . ' days' ) );
 }
 
+T::group( 'PHP 7.4 — DB dates accept mutable and immutable inputs' );
+$mutable = new \DateTime( '2026-01-02 03:04:05', new \DateTimeZone( '+02:00' ) );
+T::eq( '2026-01-02 01:04:05', Time::toDb( $mutable ), 'mutable date converts to the site timezone' );
+T::eq( '2026-01-02 03:04:05', $mutable->format( 'Y-m-d H:i:s' ), 'input is not modified' );
+T::eq( '2026-01-02 01:04:05', Time::toDb( \DateTimeImmutable::createFromMutable( $mutable ) ), 'immutable date converts the same way' );
+T::eq( null, Time::toDb( null ), 'null date stays null' );
+
 function retention_env( array $settings = array() ): array {
 	$db     = new FakeWpDb();
 	$tables = new TableNames( $db->prefix() );

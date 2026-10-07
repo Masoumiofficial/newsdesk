@@ -50,8 +50,11 @@ final class Time {
 		if ( null === $dt ) {
 			return null;
 		}
-		$copy = \DateTimeImmutable::createFromInterface( $dt );
-		return $copy->setTimezone( self::wpTimezone() )->format( 'Y-m-d H:i:s' );
+		// createFromInterface() requires PHP 8.0; the plugin supports PHP 7.4.
+		// A Unix timestamp preserves the instant for mutable and immutable inputs.
+		return ( new \DateTimeImmutable( '@' . $dt->getTimestamp() ) )
+			->setTimezone( self::wpTimezone() )
+			->format( 'Y-m-d H:i:s' );
 	}
 
 	/**
