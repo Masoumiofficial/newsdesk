@@ -1,0 +1,21 @@
+# Files excluded when deploying to the wordpress.org SVN repository.
+# The 10up/action-wordpress-plugin-deploy action reads this.
+# Keep in sync with the -x list in tools/release.sh.
+
+/.git
+/.github
+/.gitignore
+/.distignore
+/.wordpress-org
+/.i18n
+/tests
+/tools
+/dist
+/previews
+/marketing
+/node_modules
+/vendor
+.DS_Store
+Thumbs.db
+*.po
+*.zip

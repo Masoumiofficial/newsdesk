@@ -1,0 +1,30 @@
+# Build output — regenerate with `bash tools/release.sh`, never commit.
+/dist/
+
+# Rendered admin screens for screenshots — regenerate with
+# `php tools/render-previews.php`. They are large, derived, and change on
+# every CSS tweak, so they would churn the history for no benefit.
+/previews/
+
+# Dependencies
+/vendor/
+/node_modules/
+
+# Translation working data. The compiled .mo and the .pot ARE committed
+# (they ship inside the plugin); this is the provenance map used to rebuild
+# the Persian catalogue, kept out of the way but see .i18n/README if you
+# ever need to regenerate translations.
+# /.i18n/   <- intentionally NOT ignored; uncomment only if it grows large.
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Local overrides
+.env
+.env.*
+*.local.php
