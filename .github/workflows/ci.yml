@@ -1,0 +1,63 @@
+name: CI
+
+# The test suite needs no database and no WordPress install — it runs against
+# in-memory fakes — so CI is fast and has no services to provision.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: Tests on PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 7.4 is the declared floor and 8.4 is what modern hosts run.
+        # Both must pass: the code is written to 7.4 syntax but has to stay
+        # free of deprecations on 8.x.
+        php: [ '7.4', '8.0', '8.2', '8.4' ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, simplexml, json
+          coverage: none
+          tools: none
+
+      - name: Run the suite
+        run: bash tests/run.sh
+
+  package:
+    name: Package and verify the release artifact
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: mbstring, simplexml, json
+          coverage: none
+          tools: none
+
+      # This is the check that matters most. A version mismatch between the
+      # plugin header and NEWSDESK_VERSION shipped once already and was
+      # invisible in the working tree — release.sh verifies the EXTRACTED zip.
+      - name: Build and verify
+        run: bash tools/release.sh
+
+      - name: Upload the artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: newsdesk-ai-plugin
+          path: dist/*.zip
+          if-no-files-found: error
+          retention-days: 30
