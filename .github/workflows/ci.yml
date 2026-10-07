@@ -31,7 +31,21 @@ jobs:
           tools: none
 
       - name: Run the suite
-        run: bash tests/run.sh
+        shell: bash
+        run: |
+          set +e
+          bash tests/run.sh 2>&1 | tee /tmp/newsdesk-tests.log
+          result=${PIPESTATUS[0]}
+          set -e
+          if [ "$result" -ne 0 ]; then
+            # Surface failures in the Checks API, not only in downloadable logs.
+            grep -Ei 'fail|fatal error|parse error|undefined|✗' /tmp/newsdesk-tests.log \
+              | head -30 \
+              | while IFS= read -r line; do
+                  echo "::error::${line//'%'/'%25'}"
+                done || true
+          fi
+          exit "$result"
 
   package:
     name: Package and verify the release artifact
