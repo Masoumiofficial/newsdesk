@@ -1,0 +1,56 @@
+name: Release
+
+# Builds the plugin from a tag, verifies the extracted archive, and attaches the
+# artifact to the GitHub release.
+#
+# This lives in CI for two reasons. Release assets are POSTed to
+# uploads.github.com, which some development environments cannot reach, and the
+# artifact a buyer downloads should be the one the verifier built, not a file
+# that travelled through a laptop. `bash tools/release.sh` is the same check the
+# packaging job runs on every push, so a tag that is red here is a tag that was
+# already red on main.
+on:
+  push:
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to build and attach the artifact to'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Attach the verified artifact
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: mbstring, simplexml, json
+          coverage: none
+          tools: none
+
+      - name: Build and verify the package
+        run: bash tools/release.sh
+
+      - name: Attach the artifact to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag='${{ github.event.inputs.tag || github.ref_name }}'
+          test -n "$tag"
+          gh release view "$tag" >/dev/null 2>&1 \
+            || gh release create "$tag" --title "NewsDesk AI ${tag#v}" --generate-notes
+          gh release upload "$tag" dist/*.zip --clobber
+          echo "attached to $tag:"
+          gh release view "$tag" --json assets --jq '.assets[] | "  \(.name)  \(.size) bytes"'
+          sha256sum dist/*.zip

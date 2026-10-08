@@ -130,7 +130,8 @@ generically; it caught a 44-vs-43 mismatch the day it was written.
 2. Update `Stable tag:` and the changelog in `newsdesk-ai/readme.txt`, and
    `newsdesk-ai/CHANGELOG.md`.
 3. `bash tools/release.sh` — it refuses to build if any of those disagree.
-4. Tag and push; CI attaches the artifact.
+4. Tag and push; `.github/workflows/release.yml` builds the tagged commit,
+   verifies the extracted archive, and attaches the zip to the release.
 
 ---
 
