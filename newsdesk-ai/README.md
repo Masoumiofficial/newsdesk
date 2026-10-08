@@ -9,7 +9,7 @@ draft with SEO/AEO/GEO metadata, source attribution and an image plan.
 
 It stops at **draft**. Nothing is ever published automatically.
 
-- **Version:** 1.0.0
+- **Version:** 1.0.1
 - **Requires WordPress:** 6.5+
 - **Requires PHP:** 7.4+
 - **Text domain:** `newsdesk-ai`

@@ -44,7 +44,7 @@ final class Branding {
 	 * notices the traffic.
 	 */
 	public static function userAgent(): string {
-		$version = defined( 'NEWSDESK_VERSION' ) ? NEWSDESK_VERSION : '1.0.0';
+		$version = defined( 'NEWSDESK_VERSION' ) ? NEWSDESK_VERSION : '1.0.1';
 		return 'NewsDesk-AI/' . $version . ' (+' . rtrim( self::VENDOR_URL, '/' ) . ')';
 	}
 }

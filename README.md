@@ -15,7 +15,7 @@ Built by [EtehadWP](https://etehadwp.com/) — اتحاد وردپرس.
 | Path | Ships to customers? | What it is |
 |---|---|---|
 | `newsdesk-ai/` | **yes** | The plugin. This directory is what gets zipped. |
-| `tests/` | no | 22 test files, 792 assertions. No DB, no WordPress needed. |
+| `tests/` | no | 23 test files, 802 assertions. No DB, no WordPress needed. |
 | `tools/` | no | `release.sh` (build + verify), `render-previews.php` (screenshots). |
 | `.wordpress-org/` | no | Banner and icon for the wordpress.org listing. |
 | `marketing/` | no | CodeCanyon thumbnail and preview images. |
