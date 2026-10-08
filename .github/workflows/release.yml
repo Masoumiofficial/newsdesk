@@ -53,4 +53,25 @@ jobs:
           gh release upload "$tag" dist/*.zip --clobber
           echo "attached to $tag:"
           gh release view "$tag" --json assets --jq '.assets[] | "  \(.name)  \(.size) bytes"'
-          sha256sum dist/*.zip
+
+      # A zip is not reproducible — `zip` records each file's modification time,
+      # which is the checkout time on this runner. So the hash is never written
+      # into the workflow or the changelog; it is read off the artifact that was
+      # actually uploaded and published with the release it describes.
+      - name: Record the artifact hash on the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag='${{ github.event.inputs.tag || github.ref_name }}'
+          zip="$(ls dist/*.zip)"
+          name="$(basename "$zip")"
+          size="$(stat -c %s "$zip")"
+          hash="$(sha256sum "$zip" | awk '{print $1}')"
+          body="$(gh release view "$tag" --json body --jq .body)"
+          # Drop a previous artifact section so a re-run replaces it, not stacks.
+          body="$(printf '%s\n' "$body" | sed '/^<!-- artifact -->$/,$d')"
+          printf '%s\n<!-- artifact -->\n\n---\n\n**Artifact:** `%s` — %s bytes, built and verified by the Release workflow\n\n`sha256  %s`\n' \
+            "$body" "$name" "$size" "$hash" > /tmp/release-body.md
+          gh release edit "$tag" --notes-file /tmp/release-body.md
+          echo "recorded on $tag: $name  $size bytes  $hash"
