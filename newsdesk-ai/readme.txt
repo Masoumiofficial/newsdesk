@@ -4,7 +4,7 @@ Tags: news, ai, fact-check, editorial, rss
 Requires at least: 6.5
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -100,7 +100,7 @@ Every string passes through WordPress i18n.
 
 = Where is the test suite? =
 The suite ships in the development repository, not in the release zip, to keep the
-install lean. It is 21 files and 739 assertions, and it is what caught most of the
+install lean. It is 23 files and 802 assertions, and it is what caught most of the
 bugs listed in the changelog.
 
 = Who makes this, and where do I get help? =
@@ -117,6 +117,20 @@ to https://etehadwp.com/support/.
 5. Settings — gates, windows, schedule and provider configuration.
 
 == Changelog ==
+
+= 1.0.1 =
+Patch release: a PHP 7.4 fatal error, and the guard that catches it next time.
+
+* Fixed: the date helper called `DateTimeImmutable::createFromInterface()`, a
+  PHP 8.0 method, while this plugin supports PHP 7.4. On 7.4 every write that
+  stored a date failed with "Call to undefined method". Dates now convert
+  through the Unix timestamp, which works on 7.4 and does not modify the
+  object handed in.
+* Added: a static PHP-floor guard in the test suite. Calling an API newer than
+  7.4, or a function removed in PHP 8.0, now fails the build unless the file
+  guards the call itself.
+* Corrected: the test-suite figures quoted in this readme were stale.
+* No database change — updating replaces files only.
 
 = 1.0.0 =
 First public release.
@@ -141,6 +155,11 @@ First public release.
 * Data retention controls; uninstall keeps all data unless you opt in to deletion.
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+Compatibility fix. On PHP 7.4 — the minimum this plugin supports — version
+1.0.0 failed with "Call to undefined method" whenever it stored a date.
+Updating replaces files only; no database change, no settings change.
 
 = 1.0.0 =
 First public release.

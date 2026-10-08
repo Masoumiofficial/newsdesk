@@ -15,7 +15,7 @@ Built by [EtehadWP](https://etehadwp.com/) — اتحاد وردپرس.
 | Path | Ships to customers? | What it is |
 |---|---|---|
 | `newsdesk-ai/` | **yes** | The plugin. This directory is what gets zipped. |
-| `tests/` | no | 22 test files, 792 assertions. No DB, no WordPress needed. |
+| `tests/` | no | 23 test files, 802 assertions. No DB, no WordPress needed. |
 | `tools/` | no | `release.sh` (build + verify), `render-previews.php` (screenshots). |
 | `.wordpress-org/` | no | Banner and icon for the wordpress.org listing. |
 | `marketing/` | no | CodeCanyon thumbnail and preview images. |
@@ -130,7 +130,8 @@ generically; it caught a 44-vs-43 mismatch the day it was written.
 2. Update `Stable tag:` and the changelog in `newsdesk-ai/readme.txt`, and
    `newsdesk-ai/CHANGELOG.md`.
 3. `bash tools/release.sh` — it refuses to build if any of those disagree.
-4. Tag and push; CI attaches the artifact.
+4. Tag and push; `.github/workflows/release.yml` builds the tagged commit,
+   verifies the extracted archive, and attaches the zip to the release.
 
 ---
 

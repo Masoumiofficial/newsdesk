@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: NewsDesk AI 1.0.0\n"
+"Project-Id-Version: NewsDesk AI 1.0.1\n"
 "Report-Msgid-Bugs-To: https://etehadwp.com/support/\n"
 "POT-Creation-Date: 2026-10-07 12:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"

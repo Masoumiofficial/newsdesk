@@ -22,14 +22,14 @@ than WP-Cron.
 **From a zip:**
 
 1. *Plugins → Add New → Upload Plugin*
-2. Choose `newsdesk-ai-1.0.0.zip`
+2. Choose `newsdesk-ai-1.0.1.zip`
 3. *Install Now*, then *Activate*
 
 **Manually:**
 
 ```bash
 cd wp-content/plugins
-unzip newsdesk-ai-1.0.0.zip
+unzip newsdesk-ai-1.0.1.zip
 wp plugin activate newsdesk-ai
 ```
 

@@ -4,7 +4,7 @@
 # every msgstr here is the hand-written original rather than a machine pass.
 msgid ""
 msgstr ""
-"Project-Id-Version: NewsDesk AI 1.0.0\n"
+"Project-Id-Version: NewsDesk AI 1.0.1\n"
 "Report-Msgid-Bugs-To: https://etehadwp.com/support/\n"
 "POT-Creation-Date: 2026-10-07T00:00:00+00:00\n"
 "PO-Revision-Date: 2026-10-07T00:00:00+00:00\n"

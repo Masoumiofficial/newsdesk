@@ -1,0 +1,77 @@
+name: Release
+
+# Builds the plugin from a tag, verifies the extracted archive, and attaches the
+# artifact to the GitHub release.
+#
+# This lives in CI for two reasons. Release assets are POSTed to
+# uploads.github.com, which some development environments cannot reach, and the
+# artifact a buyer downloads should be the one the verifier built, not a file
+# that travelled through a laptop. `bash tools/release.sh` is the same check the
+# packaging job runs on every push, so a tag that is red here is a tag that was
+# already red on main.
+on:
+  push:
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to build and attach the artifact to'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Attach the verified artifact
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: mbstring, simplexml, json
+          coverage: none
+          tools: none
+
+      - name: Build and verify the package
+        run: bash tools/release.sh
+
+      - name: Attach the artifact to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag='${{ github.event.inputs.tag || github.ref_name }}'
+          test -n "$tag"
+          gh release view "$tag" >/dev/null 2>&1 \
+            || gh release create "$tag" --title "NewsDesk AI ${tag#v}" --generate-notes
+          gh release upload "$tag" dist/*.zip --clobber
+          echo "attached to $tag:"
+          gh release view "$tag" --json assets --jq '.assets[] | "  \(.name)  \(.size) bytes"'
+
+      # A zip is not reproducible — `zip` records each file's modification time,
+      # which is the checkout time on this runner. So the hash is never written
+      # into the workflow or the changelog; it is read off the artifact that was
+      # actually uploaded and published with the release it describes.
+      - name: Record the artifact hash on the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag='${{ github.event.inputs.tag || github.ref_name }}'
+          zip="$(ls dist/*.zip)"
+          name="$(basename "$zip")"
+          size="$(stat -c %s "$zip")"
+          hash="$(sha256sum "$zip" | awk '{print $1}')"
+          body="$(gh release view "$tag" --json body --jq .body)"
+          # Drop a previous artifact section so a re-run replaces it, not stacks.
+          body="$(printf '%s\n' "$body" | sed '/^<!-- artifact -->$/,$d')"
+          printf '%s\n<!-- artifact -->\n\n---\n\n**Artifact:** `%s` — %s bytes, built and verified by the Release workflow\n\n`sha256  %s`\n' \
+            "$body" "$name" "$size" "$hash" > /tmp/release-body.md
+          gh release edit "$tag" --notes-file /tmp/release-body.md
+          echo "recorded on $tag: $name  $size bytes  $hash"

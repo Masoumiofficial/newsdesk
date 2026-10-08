@@ -6,6 +6,41 @@ versioning follows [SemVer](https://semver.org/).
 
 ---
 
+## [1.0.1] — 2026-10-08
+
+Patch release: one defect, and the guard that would have caught it.
+
+### Fixed
+
+- **PHP 7.4 fatal error in the date helper.** `Time::toDb()` called
+  `DateTimeImmutable::createFromInterface()`, which PHP only added in 8.0, while
+  the plugin declares 7.4 as its floor. On 7.4 every write that stored a date
+  raised `Call to undefined method DateTimeImmutable::createFromInterface()`,
+  and the syntax sweep in `tests/run.sh` could not see it — that sweep greps
+  for post-7.4 *syntax*, not for post-7.4 *functions*. Dates are now converted
+  through the Unix timestamp, which exists on 7.4, preserves the instant for
+  `DateTime` and `DateTimeImmutable` alike, and leaves the caller's object
+  untouched.
+
+### Added
+
+- `tests/test-u0-php-floor.php` — a static scan of the shipped tree for calls
+  to functions and methods that 7.4 does not have, and for functions that 8.0
+  removed. A call passes only when the file guards it first (`function_exists()`
+  / `method_exists()`), so a polyfill keeps working while a reintroduced
+  `createFromInterface()` fails the suite and names the file.
+- Regression coverage for mutable, immutable and null inputs to `Time::toDb()`.
+
+### Changed
+
+- The suite figures quoted in `readme.txt` and the repository README were stale
+  (21 files / 739 assertions). They now state what the suite is: 23 files and
+  802 assertions.
+- No schema change: `NEWSDESK_DB_VERSION` stays at `1.0.0`, so an update
+  applies no database work.
+
+---
+
 ## [1.0.0] — 2026-10-07
 
 First public release.
